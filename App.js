@@ -211,7 +211,7 @@ export default class App extends React.Component {
                   <Item>
                     <Input
                       textAlign={'center'}
-                      style={{ fontFamily: 'roboto-light', fontSize: 15 }}
+                      style={{ fontFamily: 'roboto-medium', fontSize: 15 }}
                       placeholder="Message to show when time is up!"
                       value={this.state.timerUpMessage}
                       onChangeText={text => this.setState({timerUpMessage: text})}/>
@@ -236,13 +236,13 @@ export default class App extends React.Component {
           </View>
           <View style={{ flexDirection: 'column', alignItems: 'center' }}>
             <Button 
-              full transparent
+              full block
               style={{ marginBottom: 20 }}
               onPress={this.toggleStartStopTimer.bind(this)}
               >
-              <Text style={{ fontFamily: 'roboto-light' }}>{ this.state.buttonLabel }</Text>
+              <Text style={{ fontFamily: 'roboto-medium' }}>{ this.state.buttonLabel }</Text>
             </Button>
-            <Text style={{ fontFamily: 'roboto-light', fontSize: 15, color: this.state.isTimerRunning ? 'green' : 'orange' }}> {this.renderWarningStatusMessageToUser()} </Text>
+            <Text style={{ fontFamily: 'roboto-medium', fontSize: 15, color: this.state.isTimerRunning ? 'green' : 'orange' }}> {this.renderWarningStatusMessageToUser()} </Text>
           </View>
         </Content>
       </Container>
@@ -253,6 +253,6 @@ export default class App extends React.Component {
 const styles = StyleSheet.create({
   hourMinutesLabel: {
     fontSize: 100,
-    fontFamily: 'roboto-light'
+    fontFamily: 'roboto-medium'
   }
 });
