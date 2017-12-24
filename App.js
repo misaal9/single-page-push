@@ -1,0 +1,217 @@
+import React from 'react'
+import { StyleSheet, View, Picker } from 'react-native'
+import { Grid, Col, Row } from 'react-native-easy-grid'
+import { Container, Body, Title, Header, Content, Button, Text, Item, Input } from 'native-base'
+import { Notifications } from 'expo'
+
+console.disableYellowBox = true
+
+const CONST = {
+  LABEL: {
+    START: 'Start Timer',
+    STOP: 'Stop Timer',
+    DEFAULT_NOTIF_MESSAGE: 'The countdown timer you had set is complete!',
+    DEFAULT_HOURS: '4',
+    DEFAULT_MINUTES: '30',
+    TIMER_RUNNING_MSG: 'Timer is running',
+    TIMER_STOPPED_MSG: 'Timer is not running right now',
+    APP_TITLE: 'Countdown Timer App',
+    ENTER_VALID_TIME_MSG: 'Enter a valid time'
+  }
+}
+
+let clearTimerInterval;
+
+export default class App extends React.Component {
+  state = {
+    isTimerRunning: false,
+    buttonLabel: CONST.LABEL.START,
+    hours: CONST.LABEL.DEFAULT_HOURS,
+    minutes: CONST.LABEL.DEFAULT_MINUTES,
+    warningErrorMessageToUser: '',
+    timerUpMessage: ''
+  }
+
+  componentWillUnmount () {
+    clearInterval(clearTimerInterval)
+  }
+
+  resetWarningErrorMessagesToUser () {
+    this.setState({
+      warningErrorMessageToUser: ''
+    })
+  }
+
+  startTimer () {
+    this.resetWarningErrorMessagesToUser()
+
+    const delay = parseInt(this.state.hours * 60 * 60 * 1000, 10) + parseInt(this.state.minutes * 60 * 1000, 10) // TODO: remove 1000 (not dealing in seconds)
+    
+    if (!delay) {
+      return this.setState({
+        warningErrorMessageToUser: CONST.LABEL.ENTER_VALID_TIME_MSG
+      })
+    }
+
+    const messageToShowOnTimerComplete = this.state.timerUpMessage ? this.state.timerUpMessage : CONST.LABEL.DEFAULT_NOTIF_MESSAGE
+
+    this.setState({
+      isTimerRunning: true,
+      buttonLabel: CONST.LABEL.STOP
+    })
+
+    Notifications.scheduleLocalNotificationAsync({
+      title: CONST.LABEL.APP_TITLE,
+      body: messageToShowOnTimerComplete
+    }, {
+      time: (new Date()).getTime() + delay
+    })
+
+    clearTimerInterval = setInterval(() => {
+      this.stopTimer()
+    }, delay)
+  }
+
+  stopTimer () {
+    clearInterval(clearTimerInterval)
+    this.setState({
+      isTimerRunning: false,
+      buttonLabel: CONST.LABEL.START
+    })
+
+    return Notifications.cancelAllScheduledNotificationsAsync()
+  }
+
+  toggleStartStopTimer () {
+    if (this.state.isTimerRunning) {
+      return this.stopTimer()
+    }
+
+    this.startTimer()
+  }
+
+  getNumeric (text) {
+    return onlyNumeric = text.replace(/\D/g,'')
+  }
+
+  handleChangeHours (text) {
+    this.setState({
+      hours: this.getNumeric(text)
+    })
+  }
+
+  handleChangeMinutes (text) {
+    this.setState({
+      minutes: this.getNumeric(text)
+    })
+  }
+
+  showRemainingTimeLeft () {
+    return `${this.state.hours} : ${this.state.minutes}`
+  }
+
+  renderWarningStatusMessageToUser () {
+    if (this.state.warningErrorMessageToUser) {
+      return CONST.LABEL.ENTER_VALID_TIME_MSG
+    }
+
+    return this.state.isTimerRunning ? CONST.LABEL.TIMER_RUNNING_MSG : CONST.LABEL.TIMER_STOPPED_MSG
+  }
+
+  render() {
+    return (
+      <Container>
+        <Header>
+          <Body>
+            <Title>Simple Countdown Timer</Title>
+          </Body>
+        </Header>
+        <Content contentContainerStyle={{ flexDirection: 'column', justifyContent: 'space-around', padding: 20 }}>
+          <View style={{ display: this.state.isTimerRunning ? 'none' : 'flex' }}>
+            <Grid>
+              <Row style={{ height: 300 }}>
+                <Col style={{ justifyContent: 'center' }}>
+                  <Picker
+                    selectedValue={this.state.hours}
+                    onValueChange={(itemValue, itemIndex) => this.setState({hours: itemValue})}>
+                    <Picker.Item label="0" value="0" />
+                    <Picker.Item label="1" value="1" />
+                    <Picker.Item label="2" value="2" />
+                    <Picker.Item label="3" value="3" />
+                    <Picker.Item label="4" value="4" />
+                    <Picker.Item label="5" value="5" />
+                    <Picker.Item label="6" value="6" />
+                    <Picker.Item label="7" value="7" />
+                    <Picker.Item label="8" value="8" />
+                    <Picker.Item label="9" value="9" />
+                    <Picker.Item label="10" value="10" />
+                    <Picker.Item label="11" value="11" />
+                    <Picker.Item label="12" value="12" />
+                  </Picker>
+                </Col>
+                <Col style={{ flex: 1, justifyContent: 'center', flexDirection: 'row', alignItems: 'center' }}>
+                  <Text> : </Text>
+                </Col>
+                <Col style={{ justifyContent: 'center' }}>
+                  <Picker
+                    selectedValue={this.state.minutes}
+                    onValueChange={(itemValue, itemIndex) => this.setState({minutes: itemValue})}>
+                    <Picker.Item label="00" value="0" />
+                    <Picker.Item label="10" value="10" />
+                    <Picker.Item label="15" value="15" />
+                    <Picker.Item label="20" value="20" />
+                    <Picker.Item label="30" value="30" />
+                    <Picker.Item label="40" value="40" />
+                    <Picker.Item label="45" value="45" />
+                    <Picker.Item label="50" value="50" />
+                  </Picker>
+                </Col>
+              </Row>
+              <Row>
+                <Col style={{ height: 50, marginTop: 20, marginBottom: 20}}>
+                  <Item>
+                    <Input
+                      textAlign={'center'}
+                      placeholder="Message to show when time is up!"
+                      value={this.state.timerUpMessage}
+                      onChangeText={text => this.setState({timerUpMessage: text})}/>
+                  </Item>
+                </Col>
+              </Row>
+            </Grid>
+          </View>
+          <View style={{ display: this.state.isTimerRunning ? 'flex' : 'none' }}>
+            <Grid>
+              <Row style={{ height: 300}}>
+                <Col style={{ justifyContent: 'center', alignItems: 'center' }}>
+                  <View>
+                    <Text style={styles.hourMinutesLabel}> {this.showRemainingTimeLeft()} </Text>
+                  </View>
+                </Col>
+              </Row>
+              <Row>
+                <Col style={{ height: 50, marginTop: 20, marginBottom: 20}}></Col>
+              </Row>
+            </Grid>
+          </View>
+          <View style={{ flexDirection: 'column', alignItems: 'center' }}>
+            <Button 
+              full transparent
+              style={{ marginBottom: 20 }}
+              onPress={this.toggleStartStopTimer.bind(this)}
+              >
+              <Text>{ this.state.buttonLabel }</Text>
+            </Button>
+            <Text style={{ fontSize: 15, color: this.state.isTimerRunning ? 'green' : 'orange' }}> {this.renderWarningStatusMessageToUser()} </Text>
+          </View>
+        </Content>
+      </Container>
+    );
+  }
+}
+
+const styles = StyleSheet.create({
+  hourMinutesLabel: {
+    fontSize: 100
+  }
+});
