@@ -4,6 +4,7 @@ import { Grid, Col, Row } from 'react-native-easy-grid'
 import { Container, Body, Title, Header, Content, Button, Text, Item, Input } from 'native-base'
 import { Notifications } from 'expo'
 import { Font } from 'expo'
+import moment from 'moment'
 
 console.disableYellowBox = true
 
@@ -59,12 +60,22 @@ export default class App extends React.Component {
     this.resetWarningErrorMessagesToUser()
 
     const delay = parseInt(this.state.hours * 60 * 60 * 1000, 10) + parseInt(this.state.minutes * 60 * 1000, 10) // TODO: remove 1000 (not dealing in seconds)
-    
+
     if (!delay) {
       return this.setState({
         warningErrorMessageToUser: CONST.LABEL.ENTER_VALID_TIME_MSG
       })
     }
+  
+    const startTime = moment()
+    const endTime = moment(startTime).add(delay, 'milliseconds')
+    // console.log(moment(startTime).format('hh:mm'))
+    // console.log(moment(endTime).format('hh:mm'))
+    // console.time(moment(endTime).toNow())
+    // console.log('asdasd')
+    // console.log(new Date())
+    // console.log(moment().unix())
+    // console.log(moment(endTime).unix())
 
     const messageToShowOnTimerComplete = this.state.timerUpMessage ? this.state.timerUpMessage : CONST.LABEL.DEFAULT_NOTIF_MESSAGE
 
@@ -77,7 +88,7 @@ export default class App extends React.Component {
       title: CONST.LABEL.APP_TITLE,
       body: messageToShowOnTimerComplete
     }, {
-      time: (new Date()).getTime() + delay
+      time: moment(endTime).unix() * 1000
     })
 
     clearTimerInterval = setInterval(() => {
