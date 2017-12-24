@@ -3,6 +3,7 @@ import { StyleSheet, View, Picker } from 'react-native'
 import { Grid, Col, Row } from 'react-native-easy-grid'
 import { Container, Body, Title, Header, Content, Button, Text, Item, Input } from 'native-base'
 import { Notifications } from 'expo'
+import { Font } from 'expo'
 
 console.disableYellowBox = true
 
@@ -29,7 +30,19 @@ export default class App extends React.Component {
     hours: CONST.LABEL.DEFAULT_HOURS,
     minutes: CONST.LABEL.DEFAULT_MINUTES,
     warningErrorMessageToUser: '',
-    timerUpMessage: ''
+    timerUpMessage: '',
+    fontLoaded: false
+  }
+
+  async componentDidMount () {
+    await Font.loadAsync({
+      'roboto-thin': require('./assets/fonts/Roboto-Thin.ttf'),
+      'roboto-light': require('./assets/fonts/Roboto-Light.ttf'),
+      'roboto-medium': require('./assets/fonts/Roboto-Medium.ttf')
+    })
+    this.setState({
+      fontLoaded: true
+    })
   }
 
   componentWillUnmount () {
@@ -119,17 +132,32 @@ export default class App extends React.Component {
   }
 
   render() {
+    if (!this.state.fontLoaded) {
+      return (
+        <Container>
+          <Header>
+            <Body>
+              <Title>Simple Countdown Timer</Title>
+            </Body>
+          </Header>
+          <Content contentContainerStyle={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+            <View><Text>Loading...</Text></View>
+          </Content>
+        </Container>
+      )
+    }
+
     return (
       <Container>
         <Header>
           <Body>
-            <Title>Simple Countdown Timer</Title>
+            <Title style={{ fontFamily: 'roboto-light' }}>Simple Countdown Timer</Title>
           </Body>
         </Header>
         <Content contentContainerStyle={{ flexDirection: 'column', justifyContent: 'space-around', padding: 20 }}>
           <View style={{ display: this.state.isTimerRunning ? 'none' : 'flex' }}>
             <Grid>
-              <Row style={{ height: 300 }}>
+              <Row style={{ height: 250 }}>
                 <Col style={{ justifyContent: 'center' }}>
                   <Picker
                     selectedValue={this.state.hours}
@@ -172,6 +200,7 @@ export default class App extends React.Component {
                   <Item>
                     <Input
                       textAlign={'center'}
+                      style={{ fontFamily: 'roboto-light', fontSize: 15 }}
                       placeholder="Message to show when time is up!"
                       value={this.state.timerUpMessage}
                       onChangeText={text => this.setState({timerUpMessage: text})}/>
@@ -182,7 +211,7 @@ export default class App extends React.Component {
           </View>
           <View style={{ display: this.state.isTimerRunning ? 'flex' : 'none' }}>
             <Grid>
-              <Row style={{ height: 300}}>
+              <Row style={{ height: 250}}>
                 <Col style={{ justifyContent: 'center', alignItems: 'center' }}>
                   <View>
                     <Text style={styles.hourMinutesLabel}> {this.showRemainingTimeLeft()} </Text>
@@ -200,9 +229,9 @@ export default class App extends React.Component {
               style={{ marginBottom: 20 }}
               onPress={this.toggleStartStopTimer.bind(this)}
               >
-              <Text>{ this.state.buttonLabel }</Text>
+              <Text style={{ fontFamily: 'roboto-light' }}>{ this.state.buttonLabel }</Text>
             </Button>
-            <Text style={{ fontSize: 15, color: this.state.isTimerRunning ? 'green' : 'orange' }}> {this.renderWarningStatusMessageToUser()} </Text>
+            <Text style={{ fontFamily: 'roboto-light', fontSize: 15, color: this.state.isTimerRunning ? 'green' : 'orange' }}> {this.renderWarningStatusMessageToUser()} </Text>
           </View>
         </Content>
       </Container>
@@ -212,6 +241,7 @@ export default class App extends React.Component {
 
 const styles = StyleSheet.create({
   hourMinutesLabel: {
-    fontSize: 100
+    fontSize: 100,
+    fontFamily: 'roboto-light'
   }
 });
