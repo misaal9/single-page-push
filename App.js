@@ -50,22 +50,22 @@ export default class App extends React.Component {
     clearInterval(clearTimerInterval)
   }
 
-  resetWarningErrorMessagesToUser () {
-    this.setState({
-      warningErrorMessageToUser: ''
-    })
-  }
+  // resetWarningErrorMessagesToUser () {
+  //   this.setState({
+  //     warningErrorMessageToUser: ''
+  //   })
+  // }
 
   startTimer () {
-    this.resetWarningErrorMessagesToUser()
+    // this.resetWarningErrorMessagesToUser()
 
     const delay = parseInt(this.state.hours * 60 * 60 * 1000, 10) + parseInt(this.state.minutes * 60 * 1000, 10) // TODO: remove 1000 (not dealing in seconds)
 
-    if (!delay) {
-      return this.setState({
-        warningErrorMessageToUser: CONST.LABEL.ENTER_VALID_TIME_MSG
-      })
-    }
+    // if (!delay) {
+    //   return this.setState({
+    //     warningErrorMessageToUser: CONST.LABEL.ENTER_VALID_TIME_MSG
+    //   })
+    // }
   
     const startTime = moment()
     const endTime = moment(startTime).add(delay, 'milliseconds')
@@ -134,13 +134,13 @@ export default class App extends React.Component {
     return `${this.state.hours} : ${this.state.minutes}`
   }
 
-  renderWarningStatusMessageToUser () {
-    if (this.state.warningErrorMessageToUser) {
-      return CONST.LABEL.ENTER_VALID_TIME_MSG
-    }
+  // renderWarningStatusMessageToUser () {
+  //   if (this.state.warningErrorMessageToUser) {
+  //     return CONST.LABEL.ENTER_VALID_TIME_MSG
+  //   }
 
-    return this.state.isTimerRunning ? CONST.LABEL.TIMER_RUNNING_MSG : CONST.LABEL.TIMER_STOPPED_MSG
-  }
+  //   return this.state.isTimerRunning ? CONST.LABEL.TIMER_RUNNING_MSG : CONST.LABEL.TIMER_STOPPED_MSG
+  // }
 
   isButtonDisabled () {
     const { hours, minutes } = this.state
@@ -259,7 +259,7 @@ export default class App extends React.Component {
     if (!this.state.fontLoaded) {
       return (
         <Container>
-          <Header>
+          <Header style={{ backgroundColor: 'blue' }}>
             <Body>
               <Title>Simple Countdown Timer</Title>
             </Body>
