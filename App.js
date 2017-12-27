@@ -10,8 +10,8 @@ console.disableYellowBox = true
 
 const CONST = {
   LABEL: {
-    START: 'Start Timer',
-    STOP: 'Stop Timer',
+    START: 'Start',
+    STOP: 'Stop',
     DEFAULT_NOTIF_MESSAGE: 'The countdown timer you had set is complete!',
     DEFAULT_HOURS: '4',
     DEFAULT_MINUTES: '30',
@@ -142,6 +142,119 @@ export default class App extends React.Component {
     return this.state.isTimerRunning ? CONST.LABEL.TIMER_RUNNING_MSG : CONST.LABEL.TIMER_STOPPED_MSG
   }
 
+  isButtonDisabled () {
+    const { hours, minutes } = this.state
+    console.log(hours)
+    console.log(minutes)
+    return hours === '0' && minutes === '0' 
+  }
+
+  renderInputForUserMessage () {
+    return (
+      <Row>
+        <Col style={{ height: 50, marginTop: 20, marginBottom: 20}}>
+          <Item>
+            <Input
+              textAlign={'center'}
+              style={{ fontFamily: 'roboto-medium', fontSize: 15, height: 300, width: 300 }}
+              placeholder="Message to show when time is up!"
+              value={this.state.timerUpMessage}
+              onChangeText={text => this.setState({timerUpMessage: text})}/>
+          </Item>
+        </Col>
+      </Row>
+    )
+  }
+
+  renderPickerOrTime () {
+    return (
+      <View>
+        <View style={{ display: this.state.isTimerRunning ? 'none' : 'flex' }}>
+          <Grid>
+            <Row style={{ height: 450 }}>
+              <Col style={{ justifyContent: 'center' }}>
+                <Picker
+                  selectedValue={this.state.hours}
+                  onValueChange={(itemValue, itemIndex) => this.setState({hours: itemValue})}>
+                  <Picker.Item label="0" value="0" />
+                  <Picker.Item label="1" value="1" />
+                  <Picker.Item label="2" value="2" />
+                  <Picker.Item label="3" value="3" />
+                  <Picker.Item label="4" value="4" />
+                  <Picker.Item label="5" value="5" />
+                  <Picker.Item label="6" value="6" />
+                  <Picker.Item label="7" value="7" />
+                  <Picker.Item label="8" value="8" />
+                  <Picker.Item label="9" value="9" />
+                  <Picker.Item label="10" value="10" />
+                  <Picker.Item label="11" value="11" />
+                  <Picker.Item label="12" value="12" />
+                </Picker>
+              </Col>
+              <Col style={{ flex: 1, justifyContent: 'center', flexDirection: 'row', alignItems: 'center' }}>
+                <Text style={{ fontSize: 20 }}> : </Text>
+              </Col>
+              <Col style={{ justifyContent: 'center' }}>
+                <Picker
+                  selectedValue={this.state.minutes}
+                  onValueChange={(itemValue, itemIndex) => this.setState({minutes: itemValue})}>
+                  <Picker.Item label="00" value="0" />
+                  <Picker.Item label="10" value="10" />
+                  <Picker.Item label="15" value="15" />
+                  <Picker.Item label="20" value="20" />
+                  <Picker.Item label="30" value="30" />
+                  <Picker.Item label="40" value="40" />
+                  <Picker.Item label="45" value="45" />
+                  <Picker.Item label="50" value="50" />
+                </Picker>
+              </Col>
+            </Row>
+            {/* { this.renderInputForUserMessage() } */}
+          </Grid>
+        </View>
+        <View style={{ display: this.state.isTimerRunning ? 'flex' : 'none' }}>
+          <Grid>
+            <Row style={{ height: 450}}>
+              <Col style={{ justifyContent: 'center', alignItems: 'center' }}>
+                <View>
+                  <Text style={styles.hourMinutesLabel}> {this.showRemainingTimeLeft()} </Text>
+                </View>
+              </Col>
+            </Row>
+          </Grid>
+        </View>
+      </View>
+    )
+  }
+
+  showTimerStatusMessage () {
+    return (
+      <Text 
+        style={{ fontFamily: 'roboto-medium', 
+        fontSize: 15, color: this.state.isTimerRunning ? 'green' : 'orange' }}> 
+        {this.renderWarningStatusMessageToUser()} 
+      </Text>
+    )
+  }
+
+  renderStartStopButton () {
+    return (
+      <View style={{ flexDirection: 'column', alignItems: 'center' }}>
+        <Button 
+          full block
+          success={!this.state.isTimerRunning}
+          danger={this.state.isTimerRunning}
+          disabled={this.isButtonDisabled()}
+          style={{ marginBottom: 20 }}
+          onPress={this.toggleStartStopTimer.bind(this)}
+          >
+          <Text style={{ fontFamily: 'roboto-medium' }}>{ this.state.buttonLabel }</Text>
+        </Button>
+        {/* { this.showTimerStatusMessage() } */}
+      </View>
+    )
+  }
+
   render() {
     if (!this.state.fontLoaded) {
       return (
@@ -166,84 +279,8 @@ export default class App extends React.Component {
           </Body>
         </Header>
         <Content contentContainerStyle={{ flexDirection: 'column', justifyContent: 'space-around', padding: 20 }}>
-          <View style={{ display: this.state.isTimerRunning ? 'none' : 'flex' }}>
-            <Grid>
-              <Row style={{ height: 250 }}>
-                <Col style={{ justifyContent: 'center' }}>
-                  <Picker
-                    selectedValue={this.state.hours}
-                    onValueChange={(itemValue, itemIndex) => this.setState({hours: itemValue})}>
-                    <Picker.Item label="0" value="0" />
-                    <Picker.Item label="1" value="1" />
-                    <Picker.Item label="2" value="2" />
-                    <Picker.Item label="3" value="3" />
-                    <Picker.Item label="4" value="4" />
-                    <Picker.Item label="5" value="5" />
-                    <Picker.Item label="6" value="6" />
-                    <Picker.Item label="7" value="7" />
-                    <Picker.Item label="8" value="8" />
-                    <Picker.Item label="9" value="9" />
-                    <Picker.Item label="10" value="10" />
-                    <Picker.Item label="11" value="11" />
-                    <Picker.Item label="12" value="12" />
-                  </Picker>
-                </Col>
-                <Col style={{ flex: 1, justifyContent: 'center', flexDirection: 'row', alignItems: 'center' }}>
-                  <Text> : </Text>
-                </Col>
-                <Col style={{ justifyContent: 'center' }}>
-                  <Picker
-                    selectedValue={this.state.minutes}
-                    onValueChange={(itemValue, itemIndex) => this.setState({minutes: itemValue})}>
-                    <Picker.Item label="00" value="0" />
-                    <Picker.Item label="10" value="10" />
-                    <Picker.Item label="15" value="15" />
-                    <Picker.Item label="20" value="20" />
-                    <Picker.Item label="30" value="30" />
-                    <Picker.Item label="40" value="40" />
-                    <Picker.Item label="45" value="45" />
-                    <Picker.Item label="50" value="50" />
-                  </Picker>
-                </Col>
-              </Row>
-              <Row>
-                <Col style={{ height: 50, marginTop: 20, marginBottom: 20}}>
-                  <Item>
-                    <Input
-                      textAlign={'center'}
-                      style={{ fontFamily: 'roboto-medium', fontSize: 15 }}
-                      placeholder="Message to show when time is up!"
-                      value={this.state.timerUpMessage}
-                      onChangeText={text => this.setState({timerUpMessage: text})}/>
-                  </Item>
-                </Col>
-              </Row>
-            </Grid>
-          </View>
-          <View style={{ display: this.state.isTimerRunning ? 'flex' : 'none' }}>
-            <Grid>
-              <Row style={{ height: 250}}>
-                <Col style={{ justifyContent: 'center', alignItems: 'center' }}>
-                  <View>
-                    <Text style={styles.hourMinutesLabel}> {this.showRemainingTimeLeft()} </Text>
-                  </View>
-                </Col>
-              </Row>
-              <Row>
-                <Col style={{ height: 50, marginTop: 20, marginBottom: 20}}></Col>
-              </Row>
-            </Grid>
-          </View>
-          <View style={{ flexDirection: 'column', alignItems: 'center' }}>
-            <Button 
-              full block
-              style={{ marginBottom: 20 }}
-              onPress={this.toggleStartStopTimer.bind(this)}
-              >
-              <Text style={{ fontFamily: 'roboto-medium' }}>{ this.state.buttonLabel }</Text>
-            </Button>
-            <Text style={{ fontFamily: 'roboto-medium', fontSize: 15, color: this.state.isTimerRunning ? 'green' : 'orange' }}> {this.renderWarningStatusMessageToUser()} </Text>
-          </View>
+          { this.renderPickerOrTime() }
+          { this.renderStartStopButton() }
         </Content>
       </Container>
     );
