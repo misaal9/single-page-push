@@ -5,6 +5,9 @@ import { Container, Body, Title, Header, Content, Button, Text, Item, Input } fr
 import { Notifications } from 'expo'
 import { Font } from 'expo'
 import moment from 'moment'
+import preciseDiff from './lib/preciseDiff'
+
+preciseDiff(moment)
 
 console.disableYellowBox = true
 
@@ -14,7 +17,7 @@ const CONST = {
     STOP: 'Stop',
     DEFAULT_NOTIF_MESSAGE: 'The countdown timer you had set is complete!',
     DEFAULT_HOURS: '4',
-    DEFAULT_MINUTES: '30',
+    DEFAULT_MINUTES: '00',
     TIMER_RUNNING_MSG: 'Timer is running',
     TIMER_STOPPED_MSG: 'Timer is not running right now',
     APP_TITLE: 'Countdown Timer App',
@@ -22,17 +25,22 @@ const CONST = {
   }
 }
 
-let clearTimerInterval;
+let clearTimerInterval, startCountDownInterval;
 
 export default class App extends React.Component {
   state = {
     isTimerRunning: false,
     buttonLabel: CONST.LABEL.START,
+    originalHrsSetByUser: '',
+    originalMinutesSetByUser: '',
     hours: CONST.LABEL.DEFAULT_HOURS,
     minutes: CONST.LABEL.DEFAULT_MINUTES,
     warningErrorMessageToUser: '',
     timerUpMessage: '',
-    fontLoaded: false
+    fontLoaded: false,
+    displayTime: '',
+    startTime: '',
+    endTime: ''
   }
 
   async componentDidMount () {
@@ -47,7 +55,8 @@ export default class App extends React.Component {
   }
 
   componentWillUnmount () {
-    clearInterval(clearTimerInterval)
+    // clearInterval(clearTimerInterval)
+    clearInterval(startCountDownInterval)
   }
 
   // resetWarningErrorMessagesToUser () {
@@ -59,16 +68,28 @@ export default class App extends React.Component {
   startTimer () {
     // this.resetWarningErrorMessagesToUser()
 
-    const delay = parseInt(this.state.hours * 60 * 60 * 1000, 10) + parseInt(this.state.minutes * 60 * 1000, 10) // TODO: remove 1000 (not dealing in seconds)
+    // const delay = parseInt(this.state.hours * 60 * 60 * 1000, 10) + parseInt(this.state.minutes * 60 * 1000, 10) // TODO: remove 1000 (not dealing in seconds)
 
     // if (!delay) {
     //   return this.setState({
     //     warningErrorMessageToUser: CONST.LABEL.ENTER_VALID_TIME_MSG
     //   })
     // }
-  
+    const that = this
+    const delay = 1000 * 60
+    const { hours, minutes } = this.state
     const startTime = moment()
-    const endTime = moment(startTime).add(delay, 'milliseconds')
+    const endTime = moment(startTime).add(parseInt(hours, 10), 'h').add(parseInt(minutes, 10), 'm')
+    let diffinTime // remaining duration
+
+    // this.state.startTime = startTime
+    // this.state.endTime = endTime
+
+    // console.log(moment(this.state.startTime).format('hh: mm'))
+    // console.log(moment(this.state.endTime).format('hh: mm'))
+
+    // set this.state.hours, munites
+
     // console.log(moment(startTime).format('hh:mm'))
     // console.log(moment(endTime).format('hh:mm'))
     // console.time(moment(endTime).toNow())
@@ -77,28 +98,55 @@ export default class App extends React.Component {
     // console.log(moment().unix())
     // console.log(moment(endTime).unix())
 
-    const messageToShowOnTimerComplete = this.state.timerUpMessage ? this.state.timerUpMessage : CONST.LABEL.DEFAULT_NOTIF_MESSAGE
-
+    // const messageToShowOnTimerComplete = this.state.timerUpMessage ? this.state.timerUpMessage : CONST.LABEL.DEFAULT_NOTIF_MESSAGE
+    
     this.setState({
       isTimerRunning: true,
-      buttonLabel: CONST.LABEL.STOP
+      buttonLabel: CONST.LABEL.STOP,
+      originalHrsSetByUser: hours,
+      originalMinutesSetByUser: minutes
     })
 
     Notifications.scheduleLocalNotificationAsync({
       title: CONST.LABEL.APP_TITLE,
-      body: messageToShowOnTimerComplete
+      body: CONST.LABEL.DEFAULT_NOTIF_MESSAGE
     }, {
-      time: moment(endTime).unix() * 1000
+      time: new Date(endTime)
     })
 
-    clearTimerInterval = setInterval(() => {
-      this.stopTimer()
+    // diffinTime = moment(endTime).from(moment())
+    // diffinTime = moment.preciseDiff(moment(), moment(endTime), true)
+    // console.log(diffinTime)
+
+    startCountDownInterval = setInterval( () => {
+      currentTimeMoment = moment()
+      endTimeMoment = moment(endTime)
+
+      if (currentTimeMoment.isSameOrAfter(endTimeMoment)) {
+        console.log('stop timer since time is up')
+        return this.stopTimer()
+      }
+
+      diffinTime = moment.preciseDiff(moment(), moment(endTime), true)
+      console.log(diffinTime.hours)
+      console.log(diffinTime.minutes)
+      that.setState({
+        hours: diffinTime.hours, minutes: diffinTime.minutes
+      })
     }, delay)
+
+    // clearTimerInterval = setInterval(() => {
+    //   this.stopTimer()
+    // }, delay)
   }
 
   stopTimer () {
-    clearInterval(clearTimerInterval)
+    const { originalHrsSetByUser, originalMinutesSetByUser } = this.state
+    // clearInterval(clearTimerInterval)
+    clearInterval(startCountDownInterval)
     this.setState({
+      hours: originalHrsSetByUser,
+      minutes: originalMinutesSetByUser,
       isTimerRunning: false,
       buttonLabel: CONST.LABEL.START
     })
@@ -130,9 +178,36 @@ export default class App extends React.Component {
     })
   }
 
-  showRemainingTimeLeft () {
-    return `${this.state.hours} : ${this.state.minutes}`
-  }
+  // showRemainingTimeLeft () {
+  //   // const timeToShow = `${this.state.hours} : ${this.state.minutes}`
+  //   // const endTime = moment().add(2, 'h').add(30, 'm')
+
+  //   // const difference = 
+  //   const that = this
+  //   const delay = 1000 * 60
+  //   let currentTimeMoment, endTimeMoment, endTime
+  //   let displayTime = displayTime = moment().format('hh:mm')
+  //   const { hours, minutes } = this.state
+
+  //   // this.setState({ displayTime })
+
+  //   const startCountDownInterval = setInterval( () => {
+  //     endTime = that.state.endTime
+  //     currentTimeMoment = moment()
+  //     endTimeMoment = moment(endTime)
+  //     displayTime = moment().format('hh:mm')
+  //     // that.setState({
+  //     //   displayTime
+  //     // })
+      
+  //     // if ( currentDate > endDate ) { this.stopTimer() }
+  //   }, delay)
+
+  //   // return timeToShow
+  //   console.log(this.state.displayTime)
+  //   console.log(displayTime)
+  //   return this.state.displayTime
+  // }
 
   // renderWarningStatusMessageToUser () {
   //   if (this.state.warningErrorMessageToUser) {
@@ -144,8 +219,6 @@ export default class App extends React.Component {
 
   isButtonDisabled () {
     const { hours, minutes } = this.state
-    console.log(hours)
-    console.log(minutes)
     return hours === '0' && minutes === '0' 
   }
 
@@ -164,6 +237,10 @@ export default class App extends React.Component {
         </Col>
       </Row>
     )
+  }
+
+  showDisplayTime () {
+    return `${this.state.hours} : ${this.state.minutes}`
   }
 
   renderPickerOrTime () {
@@ -199,6 +276,8 @@ export default class App extends React.Component {
                   selectedValue={this.state.minutes}
                   onValueChange={(itemValue, itemIndex) => this.setState({minutes: itemValue})}>
                   <Picker.Item label="00" value="0" />
+                  {/* <Picker.Item label="1" value="1" />
+                  <Picker.Item label="2" value="2" /> */}
                   <Picker.Item label="10" value="10" />
                   <Picker.Item label="15" value="15" />
                   <Picker.Item label="20" value="20" />
@@ -217,7 +296,7 @@ export default class App extends React.Component {
             <Row style={{ height: 450}}>
               <Col style={{ justifyContent: 'center', alignItems: 'center' }}>
                 <View>
-                  <Text style={styles.hourMinutesLabel}> {this.showRemainingTimeLeft()} </Text>
+                  <Text style={styles.hourMinutesLabel}> {this.showDisplayTime()} </Text>
                 </View>
               </Col>
             </Row>
