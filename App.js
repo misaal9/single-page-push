@@ -2,7 +2,7 @@ import React from 'react'
 import { StyleSheet, View, Picker } from 'react-native'
 import { Grid, Col, Row } from 'react-native-easy-grid'
 import { Container, Body, Title, Header, Content, Button, Text, Item, Input } from 'native-base'
-import { Notifications } from 'expo'
+import { Notifications, SecureStore } from 'expo'
 import { Font } from 'expo'
 import moment from 'moment'
 import preciseDiff from './lib/preciseDiff'
@@ -81,6 +81,10 @@ export default class App extends React.Component {
       time: new Date(endTime)
     })
 
+    SecureStore.setItemAsync('hours', '10')
+    SecureStore.setItemAsync('minutes', '50')
+    // SecureStore.setItemAsync('endTime', endTime)
+
     startCountDownInterval = setInterval( () => {
       currentTimeMoment = moment()
       endTimeMoment = moment(endTime)
@@ -106,6 +110,12 @@ export default class App extends React.Component {
       isTimerRunning: false,
       buttonLabel: CONST.LABEL.START
     })
+
+    const h = SecureStore.setItemAsync('hours', 10)
+    const m = SecureStore.setItemAsync('minutes', 50)
+
+    console.log(h)
+    console.log(m)
 
     return Notifications.cancelAllScheduledNotificationsAsync()
   }
