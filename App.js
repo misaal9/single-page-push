@@ -70,7 +70,8 @@ export default class App extends React.Component {
       isTimerRunning: true,
       buttonLabel: CONST.LABEL.STOP,
       originalHrsSetByUser: hours,
-      originalMinutesSetByUser: minutes
+      originalMinutesSetByUser: minutes,
+      endTime
     })
 
     Notifications.scheduleLocalNotificationAsync({
@@ -90,8 +91,6 @@ export default class App extends React.Component {
       }
 
       diffinTime = moment.preciseDiff(moment(), moment(endTime), true)
-      console.log(diffinTime.hours)
-      console.log(diffinTime.minutes)
       that.setState({
         hours: diffinTime.hours, minutes: diffinTime.minutes
       })
@@ -140,25 +139,15 @@ export default class App extends React.Component {
     return hours === '0' && minutes === '0' 
   }
 
-  renderInputForUserMessage () {
-    return (
-      <Row>
-        <Col style={{ height: 50, marginTop: 20, marginBottom: 20}}>
-          <Item>
-            <Input
-              textAlign={'center'}
-              style={{ fontFamily: 'roboto-medium', fontSize: 15, height: 300, width: 300 }}
-              placeholder="Message to show when time is up!"
-              value={this.state.timerUpMessage}
-              onChangeText={text => this.setState({timerUpMessage: text})}/>
-          </Item>
-        </Col>
-      </Row>
-    )
-  }
-
   showDisplayTime () {
     return `${this.state.hours} : ${this.state.minutes}`
+  }
+
+  showEndTimeInfoLabel () {
+    const { hours, minutes } = this.state
+    const startTime = moment()
+    const endTime = moment(startTime).add(parseInt(hours, 10), 'h').add(parseInt(minutes, 10), 'm')
+    return endTime.format('h:mm A')
   }
 
   renderPickerOrTime () {
@@ -206,7 +195,6 @@ export default class App extends React.Component {
                 </Picker>
               </Col>
             </Row>
-            {/* { this.renderInputForUserMessage() } */}
           </Grid>
         </View>
         <View style={{ display: this.state.isTimerRunning ? 'flex' : 'none' }}>
@@ -215,6 +203,7 @@ export default class App extends React.Component {
               <Col style={{ justifyContent: 'center', alignItems: 'center' }}>
                 <View>
                   <Text style={styles.hourMinutesLabel}> {this.showDisplayTime()} </Text>
+                  <Text style={styles.endTimeInfoLabel}> {this.showEndTimeInfoLabel()} </Text>
                 </View>
               </Col>
             </Row>
@@ -287,5 +276,11 @@ const styles = StyleSheet.create({
   hourMinutesLabel: {
     fontSize: 100,
     fontFamily: 'roboto-medium'
+  },
+  endTimeInfoLabel: {
+    fontSize: 20,
+    color: '#ccc',
+    textAlign: 'center',
+    marginTop: 20
   }
 });
