@@ -183,8 +183,8 @@ export default class App extends React.Component {
                   selectedValue={this.state.minutes}
                   onValueChange={(itemValue, itemIndex) => this.setState({minutes: itemValue})}>
                   <Picker.Item label="00" value="0" />
-                  {/* <Picker.Item label="1" value="1" />
-                  <Picker.Item label="2" value="2" /> */}
+                  <Picker.Item label="1" value="1" />
+                  <Picker.Item label="2" value="2" />
                   <Picker.Item label="10" value="10" />
                   <Picker.Item label="15" value="15" />
                   <Picker.Item label="20" value="20" />
