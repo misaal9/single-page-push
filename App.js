@@ -244,11 +244,6 @@ export default class App extends React.Component {
     if (!this.state.fontLoaded) {
       return (
         <Container>
-          <Header style={{ backgroundColor: 'blue' }}>
-            <Body>
-              <Title>Simple Countdown Timer</Title>
-            </Body>
-          </Header>
           <Content contentContainerStyle={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
             <View><Text>Loading...</Text></View>
           </Content>
@@ -258,11 +253,6 @@ export default class App extends React.Component {
 
     return (
       <Container>
-        <Header>
-          <Body>
-            <Title style={{ fontFamily: 'roboto-light' }}>Simple Countdown Timer</Title>
-          </Body>
-        </Header>
         <Content contentContainerStyle={{ flexDirection: 'column', justifyContent: 'space-around', padding: 20 }}>
           { this.renderPickerOrTime() }
           { this.renderStartStopButton() }
