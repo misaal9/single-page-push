@@ -1,18 +1,24 @@
 {
   "expo": {
-    "name": "single-page-push",
+    "name": "Timer",
     "description": "This project is really great.",
-    "slug": "single-page-push",
+    "slug": "timer",
     "privacy": "public",
     "sdkVersion": "24.0.0",
     "platforms": ["ios", "android"],
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
+    "primaryColor": "#c14930",
     "splash": {
-      "image": "./assets/splash.png",
+      "icon": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#195ba2"
+      "backgroundColor": "#195ba2",
+      "hideExponentText": true
+    },
+    "notification": {
+      "icon": "./assets/notifIcon.png",
+      "color": "#00B300"
     },
     "ios": {
       "supportsTablet": true,
