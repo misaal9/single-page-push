@@ -55,26 +55,10 @@ export default class App extends React.Component {
   }
 
   componentWillUnmount () {
-    // clearInterval(clearTimerInterval)
     clearInterval(startCountDownInterval)
   }
 
-  // resetWarningErrorMessagesToUser () {
-  //   this.setState({
-  //     warningErrorMessageToUser: ''
-  //   })
-  // }
-
   startTimer () {
-    // this.resetWarningErrorMessagesToUser()
-
-    // const delay = parseInt(this.state.hours * 60 * 60 * 1000, 10) + parseInt(this.state.minutes * 60 * 1000, 10) // TODO: remove 1000 (not dealing in seconds)
-
-    // if (!delay) {
-    //   return this.setState({
-    //     warningErrorMessageToUser: CONST.LABEL.ENTER_VALID_TIME_MSG
-    //   })
-    // }
     const that = this
     const delay = 1000 * 60
     const { hours, minutes } = this.state
@@ -82,24 +66,6 @@ export default class App extends React.Component {
     const endTime = moment(startTime).add(parseInt(hours, 10), 'h').add(parseInt(minutes, 10), 'm')
     let diffinTime // remaining duration
 
-    // this.state.startTime = startTime
-    // this.state.endTime = endTime
-
-    // console.log(moment(this.state.startTime).format('hh: mm'))
-    // console.log(moment(this.state.endTime).format('hh: mm'))
-
-    // set this.state.hours, munites
-
-    // console.log(moment(startTime).format('hh:mm'))
-    // console.log(moment(endTime).format('hh:mm'))
-    // console.time(moment(endTime).toNow())
-    // console.log('asdasd')
-    // console.log(new Date())
-    // console.log(moment().unix())
-    // console.log(moment(endTime).unix())
-
-    // const messageToShowOnTimerComplete = this.state.timerUpMessage ? this.state.timerUpMessage : CONST.LABEL.DEFAULT_NOTIF_MESSAGE
-    
     this.setState({
       isTimerRunning: true,
       buttonLabel: CONST.LABEL.STOP,
@@ -113,10 +79,6 @@ export default class App extends React.Component {
     }, {
       time: new Date(endTime)
     })
-
-    // diffinTime = moment(endTime).from(moment())
-    // diffinTime = moment.preciseDiff(moment(), moment(endTime), true)
-    // console.log(diffinTime)
 
     startCountDownInterval = setInterval( () => {
       currentTimeMoment = moment()
@@ -134,15 +96,10 @@ export default class App extends React.Component {
         hours: diffinTime.hours, minutes: diffinTime.minutes
       })
     }, delay)
-
-    // clearTimerInterval = setInterval(() => {
-    //   this.stopTimer()
-    // }, delay)
   }
 
   stopTimer () {
     const { originalHrsSetByUser, originalMinutesSetByUser } = this.state
-    // clearInterval(clearTimerInterval)
     clearInterval(startCountDownInterval)
     this.setState({
       hours: originalHrsSetByUser,
@@ -177,45 +134,6 @@ export default class App extends React.Component {
       minutes: this.getNumeric(text)
     })
   }
-
-  // showRemainingTimeLeft () {
-  //   // const timeToShow = `${this.state.hours} : ${this.state.minutes}`
-  //   // const endTime = moment().add(2, 'h').add(30, 'm')
-
-  //   // const difference = 
-  //   const that = this
-  //   const delay = 1000 * 60
-  //   let currentTimeMoment, endTimeMoment, endTime
-  //   let displayTime = displayTime = moment().format('hh:mm')
-  //   const { hours, minutes } = this.state
-
-  //   // this.setState({ displayTime })
-
-  //   const startCountDownInterval = setInterval( () => {
-  //     endTime = that.state.endTime
-  //     currentTimeMoment = moment()
-  //     endTimeMoment = moment(endTime)
-  //     displayTime = moment().format('hh:mm')
-  //     // that.setState({
-  //     //   displayTime
-  //     // })
-      
-  //     // if ( currentDate > endDate ) { this.stopTimer() }
-  //   }, delay)
-
-  //   // return timeToShow
-  //   console.log(this.state.displayTime)
-  //   console.log(displayTime)
-  //   return this.state.displayTime
-  // }
-
-  // renderWarningStatusMessageToUser () {
-  //   if (this.state.warningErrorMessageToUser) {
-  //     return CONST.LABEL.ENTER_VALID_TIME_MSG
-  //   }
-
-  //   return this.state.isTimerRunning ? CONST.LABEL.TIMER_RUNNING_MSG : CONST.LABEL.TIMER_STOPPED_MSG
-  // }
 
   isButtonDisabled () {
     const { hours, minutes } = this.state
@@ -329,7 +247,6 @@ export default class App extends React.Component {
           >
           <Text style={{ fontFamily: 'roboto-medium' }}>{ this.state.buttonLabel }</Text>
         </Button>
-        {/* { this.showTimerStatusMessage() } */}
       </View>
     )
   }
