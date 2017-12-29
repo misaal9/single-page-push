@@ -12,10 +12,14 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "##195ba2"
+      "backgroundColor": "#195ba2"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.rodiwaa.singlepagepush"
+    },
+    "android": {
+      "package": "com.rodiwaa.singlepagepush"
     }
   }
 }
