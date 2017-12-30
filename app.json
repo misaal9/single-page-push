@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Timer",
-    "description": "Simple app to time yourself.",
+    "description": "This project is really great.",
     "slug": "timer",
     "privacy": "public",
     "sdkVersion": "24.0.0",
@@ -9,11 +9,12 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "primaryColor": "#ffffff",
+    "primaryColor": "#c14930",
     "splash": {
-      "image": "./assets/splash.png",
+      "icon": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#195ba2"
+      "backgroundColor": "#195ba2",
+      "hideExponentText": true
     },
     "notification": {
       "icon": "./assets/notifIcon.png",
@@ -21,10 +22,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.rodiwaa.timer"
+      "bundleIdentifier": "com.rodiwaa.singlepagepush"
     },
     "android": {
-      "package": "com.rodiwaa.timer"
+      "package": "com.rodiwaa.singlepagepush"
     }
   }
 }
