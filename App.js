@@ -294,8 +294,8 @@ export default class App extends React.Component {
     }
 
     return (
-      <Container>
-        <Content contentContainerStyle={{ flexDirection: 'column', justifyContent: 'space-around', padding: 20 }}>
+      <Container style={{ backgroundColor: '#ffffff', flexDirection: 'column' }}>
+        <Content contentContainerStyle={{ justifyContent: 'space-around', padding: 20 }}>
           { this.renderPickerOrTime() }
           { this.renderStartStopButton() }
         </Content>
