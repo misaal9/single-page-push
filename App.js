@@ -6,6 +6,7 @@ import { Notifications } from 'expo'
 import { Font } from 'expo'
 import moment from 'moment'
 import preciseDiff from './lib/preciseDiff'
+import { padStart } from 'lodash'
 
 preciseDiff(moment)
 
@@ -146,7 +147,7 @@ export default class App extends React.Component {
   }
 
   showDisplayTime () {
-    return `${this.state.hours} : ${this.state.minutes}`
+    return `${padStart(this.state.hours, 2, '0')} : ${padStart(this.state.minutes, 2, '0')}`
   }
 
   showEndTimeInfoLabel () {
@@ -164,16 +165,16 @@ export default class App extends React.Component {
             itemStyle={{ textAlign: 'right', color: '#fff', fontSize: 40 }}
             selectedValue={this.state.hours}
             onValueChange={(itemValue, itemIndex) => this.setState({hours: itemValue})}>
-            <Picker.Item label="0" value="0" />
-            <Picker.Item label="1" value="1" />
-            <Picker.Item label="2" value="2" />
-            <Picker.Item label="3" value="3" />
-            <Picker.Item label="4" value="4" />
-            <Picker.Item label="5" value="5" />
-            <Picker.Item label="6" value="6" />
-            <Picker.Item label="7" value="7" />
-            <Picker.Item label="8" value="8" />
-            <Picker.Item label="9" value="9" />
+            <Picker.Item label="00" value="0" />
+            <Picker.Item label="01" value="1" />
+            <Picker.Item label="02" value="2" />
+            <Picker.Item label="03" value="3" />
+            <Picker.Item label="04" value="4" />
+            <Picker.Item label="05" value="5" />
+            <Picker.Item label="06" value="6" />
+            <Picker.Item label="07" value="7" />
+            <Picker.Item label="08" value="8" />
+            <Picker.Item label="09" value="9" />
             <Picker.Item label="10" value="10" />
             <Picker.Item label="11" value="11" />
             <Picker.Item label="12" value="12" />
@@ -188,8 +189,6 @@ export default class App extends React.Component {
             selectedValue={this.state.minutes}
             onValueChange={(itemValue, itemIndex) => this.setState({minutes: itemValue})}>
             <Picker.Item label="00" value="0" />
-            <Picker.Item label="01" value="1" />
-            <Picker.Item label="02" value="2" />
             <Picker.Item label="10" value="10" />
             <Picker.Item label="15" value="15" />
             <Picker.Item label="20" value="20" />
