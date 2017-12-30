@@ -2,7 +2,7 @@ import React from 'react'
 import { StyleSheet, View, Picker } from 'react-native'
 import { Grid, Col, Row } from 'react-native-easy-grid'
 import { Container, Body, Title, Header, Content, Button, Text, Item, Input } from 'native-base'
-import { Notifications } from 'expo'
+import { Notifications, SecureStore } from 'expo'
 import { Font } from 'expo'
 import moment from 'moment'
 import preciseDiff from './lib/preciseDiff'
@@ -49,6 +49,16 @@ export default class App extends React.Component {
       'roboto-light': require('./assets/fonts/Roboto-Light.ttf'),
       'roboto-medium': require('./assets/fonts/Roboto-Medium.ttf')
     })
+
+    // initiate resume, if needed
+    const endTime = await SecureStore.getItemAsync('endTime')
+    const hoursSetByUser = await SecureStore.getItemAsync('hoursSetByUser')
+    const minutesSetByUser = await SecureStore.getItemAsync('minutesSetByUser')
+
+    if (endTime && hoursSetByUser && minutesSetByUser) {
+      this.resume(endTime, hoursSetByUser, minutesSetByUser)
+    }
+
     this.setState({
       fontLoaded: true
     })
@@ -58,7 +68,15 @@ export default class App extends React.Component {
     clearInterval(startCountDownInterval)
   }
 
-  startTimer () {
+  resume () {
+    console.log('resume')
+    this.setState({
+      isTimerRunning: true,
+      buttonLabel: CONST.LABEL.STOP
+    })
+  }
+
+  async startTimer () {
     const that = this
     const delay = 1000 * 60
     const { hours, minutes } = this.state
@@ -86,7 +104,6 @@ export default class App extends React.Component {
       endTimeMoment = moment(endTime)
 
       if (currentTimeMoment.isSameOrAfter(endTimeMoment)) {
-        console.log('stop timer since time is up')
         return this.stopTimer()
       }
 
@@ -95,9 +112,14 @@ export default class App extends React.Component {
         hours: diffinTime.hours, minutes: diffinTime.minutes
       })
     }, delay)
+
+    // save resume data to local device
+    await SecureStore.setItemAsync('endTime', endTime.format())
+    await SecureStore.setItemAsync('hoursSetByUser', hours)
+    await SecureStore.setItemAsync('minutesSetByUser', minutes)
   }
 
-  stopTimer () {
+  async stopTimer () {
     const { originalHrsSetByUser, originalMinutesSetByUser } = this.state
     clearInterval(startCountDownInterval)
     this.setState({
@@ -106,6 +128,12 @@ export default class App extends React.Component {
       isTimerRunning: false,
       buttonLabel: CONST.LABEL.START
     })
+
+    // remove resume data from device
+    await SecureStore.deleteItemAsync('endTime')
+    await SecureStore.deleteItemAsync('hoursSetByUser')
+    await SecureStore.deleteItemAsync('minutesSetByUser')
+    
 
     return Notifications.cancelAllScheduledNotificationsAsync()
   }
