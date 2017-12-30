@@ -1,5 +1,5 @@
 import React from 'react'
-import { StyleSheet, View, Picker } from 'react-native'
+import { StyleSheet, View, Picker, TimePickerAndroid, Platform } from 'react-native'
 import { Grid, Col, Row } from 'react-native-easy-grid'
 import { Container, Body, Title, Header, Content, Button, Text, Item, Input } from 'native-base'
 import { Notifications } from 'expo'
@@ -150,51 +150,57 @@ export default class App extends React.Component {
     return endTime.format('h:mm A')
   }
 
+  renderIosPicker () {
+    return (
+      <Row style={{ height: 450 }}>
+        <Col style={{ justifyContent: 'center' }}>
+          <Picker
+            selectedValue={this.state.hours}
+            onValueChange={(itemValue, itemIndex) => this.setState({hours: itemValue})}>
+            <Picker.Item label="0" value="0" />
+            <Picker.Item label="1" value="1" />
+            <Picker.Item label="2" value="2" />
+            <Picker.Item label="3" value="3" />
+            <Picker.Item label="4" value="4" />
+            <Picker.Item label="5" value="5" />
+            <Picker.Item label="6" value="6" />
+            <Picker.Item label="7" value="7" />
+            <Picker.Item label="8" value="8" />
+            <Picker.Item label="9" value="9" />
+            <Picker.Item label="10" value="10" />
+            <Picker.Item label="11" value="11" />
+            <Picker.Item label="12" value="12" />
+          </Picker>
+        </Col>
+        <Col style={{ flex: 1, justifyContent: 'center', flexDirection: 'row', alignItems: 'center' }}>
+          <Text style={{ fontSize: 20 }}> : </Text>
+        </Col>
+        <Col style={{ justifyContent: 'center' }}>
+          <Picker
+            selectedValue={this.state.minutes}
+            onValueChange={(itemValue, itemIndex) => this.setState({minutes: itemValue})}>
+            <Picker.Item label="00" value="0" />
+            <Picker.Item label="1" value="1" />
+            <Picker.Item label="2" value="2" />
+            <Picker.Item label="10" value="10" />
+            <Picker.Item label="15" value="15" />
+            <Picker.Item label="20" value="20" />
+            <Picker.Item label="30" value="30" />
+            <Picker.Item label="40" value="40" />
+            <Picker.Item label="45" value="45" />
+            <Picker.Item label="50" value="50" />
+          </Picker>
+        </Col>
+      </Row>
+    )
+  }
+
   renderPickerOrTime () {
     return (
       <View>
         <View style={{ display: this.state.isTimerRunning ? 'none' : 'flex' }}>
           <Grid>
-            <Row style={{ height: 450 }}>
-              <Col style={{ justifyContent: 'center' }}>
-                <Picker
-                  selectedValue={this.state.hours}
-                  onValueChange={(itemValue, itemIndex) => this.setState({hours: itemValue})}>
-                  <Picker.Item label="0" value="0" />
-                  <Picker.Item label="1" value="1" />
-                  <Picker.Item label="2" value="2" />
-                  <Picker.Item label="3" value="3" />
-                  <Picker.Item label="4" value="4" />
-                  <Picker.Item label="5" value="5" />
-                  <Picker.Item label="6" value="6" />
-                  <Picker.Item label="7" value="7" />
-                  <Picker.Item label="8" value="8" />
-                  <Picker.Item label="9" value="9" />
-                  <Picker.Item label="10" value="10" />
-                  <Picker.Item label="11" value="11" />
-                  <Picker.Item label="12" value="12" />
-                </Picker>
-              </Col>
-              <Col style={{ flex: 1, justifyContent: 'center', flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={{ fontSize: 20 }}> : </Text>
-              </Col>
-              <Col style={{ justifyContent: 'center' }}>
-                <Picker
-                  selectedValue={this.state.minutes}
-                  onValueChange={(itemValue, itemIndex) => this.setState({minutes: itemValue})}>
-                  <Picker.Item label="00" value="0" />
-                  <Picker.Item label="1" value="1" />
-                  <Picker.Item label="2" value="2" />
-                  <Picker.Item label="10" value="10" />
-                  <Picker.Item label="15" value="15" />
-                  <Picker.Item label="20" value="20" />
-                  <Picker.Item label="30" value="30" />
-                  <Picker.Item label="40" value="40" />
-                  <Picker.Item label="45" value="45" />
-                  <Picker.Item label="50" value="50" />
-                </Picker>
-              </Col>
-            </Row>
+            { Platform.OS === 'ios' ? this.renderIosPicker() : this.renderAndroidTimePicker() }
           </Grid>
         </View>
         <View style={{ display: this.state.isTimerRunning ? 'flex' : 'none' }}>
@@ -237,6 +243,42 @@ export default class App extends React.Component {
           <Text style={{ fontFamily: 'roboto-medium' }}>{ this.state.buttonLabel }</Text>
         </Button>
       </View>
+    )
+  }
+
+  async toggleTimePicker () {
+    const that = this
+    const { hour, minute } = this.state
+    try {
+      const { action, hour, minute } = await TimePickerAndroid.open({
+        hour: parseInt(that.state.hours, 10),
+        minute: parseInt(that.state.minutes, 10),
+        is24Hour: true
+      })
+      if (action !== TimePickerAndroid.dismissedAction) {
+        that.setState({
+          hours: hour,
+          minutes: minute
+        })
+      }
+    } finally {
+      // nothing
+    }
+  }
+
+  renderAndroidTimePicker () {
+    return (
+      <Row style={{ height: 450 }}>
+        <Col style={{ justifyContent: 'center' }}>
+            <Text 
+              style={{ textAlign: 'center', color: '#333', fontFamily: 'roboto-medium', fontSize: 100 }}
+              onPress={() => this.toggleTimePicker()}
+            >
+              { this.showDisplayTime() }
+            </Text>
+            <Text style={styles.endTimeInfoLabel}> Click to set new time! </Text>
+        </Col>
+      </Row>
     )
   }
 
