@@ -3,7 +3,7 @@ import { StyleSheet, View, Picker, TimePickerAndroid, Platform } from 'react-nat
 import { Grid, Col, Row } from 'react-native-easy-grid'
 import { Container, Body, Title, Header, Content, Button, Text, Item, Input } from 'native-base'
 import { Notifications } from 'expo'
-import { Font } from 'expo'
+import { Font, SecureStore } from 'expo'
 import moment from 'moment'
 import preciseDiff from './lib/preciseDiff'
 import { padStart } from 'lodash'
@@ -16,14 +16,14 @@ const CONST = {
   LABEL: {
     START: 'Start',
     STOP: 'Stop',
-    DEFAULT_NOTIF_MESSAGE: 'The countdown timer you had set is complete!',
+    DEFAULT_NOTIF_MESSAGE: 'Your time(r) is up! ;)',
     DEFAULT_HOURS: '4',
-    DEFAULT_MINUTES: '00',
-    TIMER_RUNNING_MSG: 'Timer is running',
-    TIMER_STOPPED_MSG: 'Timer is not running right now',
-    APP_TITLE: 'Countdown Timer App',
-    ENTER_VALID_TIME_MSG: 'Enter a valid time',
-    SET_NEW_TIME: 'Click to set new time'
+    DEFAULT_MINUTES: '30',
+    // TIMER_RUNNING_MSG: 'Timer is running',
+    // TIMER_STOPPED_MSG: 'Timer is not running right now',
+    APP_TITLE: 'Timer',
+    // ENTER_VALID_TIME_MSG: 'Enter a valid time',
+    SET_NEW_TIME: 'Click & set time in HH:MM'
   },
   COLORS: {
     BLUE: '#20094E',
@@ -56,8 +56,20 @@ export default class App extends React.Component {
       'roboto-medium': require('./assets/fonts/Roboto-Medium.ttf'),
       'permanent-marker': require('./assets/fonts/Permanent-Marker.ttf')
     })
+    
+    const isTimerRunning = await SecureStore.getItemAsync('isTimerRunning')
+
+    if (isTimerRunning) {
+      console.log('resume timer from last time')
+      this.startTimer(true)
+    } else {
+      console.log('no timer data found. start from scratch')
+    }
+
     this.setState({
-      fontLoaded: true
+      fontLoaded: true,
+      hours: await SecureStore.getItemAsync('hours') || this.state.hours,
+      minutes: await SecureStore.getItemAsync('minutes') || this.state.minutes
     })
   }
 
@@ -65,21 +77,50 @@ export default class App extends React.Component {
     clearInterval(startCountDownInterval)
   }
 
-  startTimer () {
+  async startTimer (isTimerAlreadyRunning = false) {
     const that = this
     const delay = 1000 * 60
-    const { hours, minutes } = this.state
+    let hours = await SecureStore.getItemAsync('hours')
+    let minutes = await SecureStore.getItemAsync('minutes')
+    
+    // if used for first time, get default values from local device
+    if (!hours && !minutes) {
+      console.log('get default values for hours, minutes')
+      hours = this.state.hours
+      minutes = this.state.minutes
+    }
+
     const startTime = moment()
-    const endTime = moment(startTime).add(parseInt(hours, 10), 'h').add(parseInt(minutes, 10), 'm')
+    let endTime = moment(startTime).add(parseInt(hours, 10), 'h').add(parseInt(minutes, 10), 'm')
+    console.log(endTime)
+    console.log(endTime.format())
     let diffinTime // remaining duration
+
+    if (isTimerAlreadyRunning) {
+      console.log('get timer info for resume')
+      hours = await SecureStore.getItemAsync('hours')
+      minutes = await SecureStore.getItemAsync('minutes')
+      endTime = await SecureStore.getItemAsync('endTime') // use stored value only on resume
+      endTime = moment(endTime)
+      console.log(moment(endTime))
+      console.log(endTime)
+    }
 
     this.setState({
       isTimerRunning: true,
       buttonLabel: CONST.LABEL.STOP,
-      originalHrsSetByUser: hours,
-      originalMinutesSetByUser: minutes,
+      // originalHrsSetByUser: hours,
+      // originalMinutesSetByUser: minutes,
       endTime
     })
+
+    if (!isTimerAlreadyRunning) {
+      console.log('save timer details for resume')
+      await SecureStore.setItemAsync('isTimerRunning', 'running')
+      await SecureStore.setItemAsync('hours', hours.toString())
+      await SecureStore.setItemAsync('minutes', minutes.toString())
+      await SecureStore.setItemAsync('endTime', moment(endTime).format())
+    }
 
     Notifications.scheduleLocalNotificationAsync({
       title: CONST.LABEL.APP_TITLE,
@@ -104,15 +145,22 @@ export default class App extends React.Component {
     }, delay)
   }
 
-  stopTimer () {
+  async stopTimer () {
     const { originalHrsSetByUser, originalMinutesSetByUser } = this.state
+    console.log(originalHrsSetByUser)
+    console.log(originalMinutesSetByUser)
     clearInterval(startCountDownInterval)
     this.setState({
-      hours: originalHrsSetByUser,
-      minutes: originalMinutesSetByUser,
+      // hours: originalHrsSetByUser,
+      // minutes: originalMinutesSetByUser,
       isTimerRunning: false,
       buttonLabel: CONST.LABEL.START
     })
+
+    // remove timer info, dont remove hours, minutes to use last saved time
+    console.log('remove timer details if timer is stopped/ finished')
+    await SecureStore.deleteItemAsync('isTimerRunning')
+    await SecureStore.deleteItemAsync('endTime')
 
     return Notifications.cancelAllScheduledNotificationsAsync()
   }
@@ -129,22 +177,22 @@ export default class App extends React.Component {
     return onlyNumeric = text.replace(/\D/g,'')
   }
 
-  handleChangeHours (text) {
-    this.setState({
-      hours: this.getNumeric(text)
-    })
-  }
+  // handleChangeHours (text) {
+  //   this.setState({
+  //     hours: this.getNumeric(text)
+  //   })
+  // }
 
-  handleChangeMinutes (text) {
-    this.setState({
-      minutes: this.getNumeric(text)
-    })
-  }
+  // handleChangeMinutes (text) {
+  //   this.setState({
+  //     minutes: this.getNumeric(text)
+  //   })
+  // }
 
-  isButtonDisabled () {
-    const { hours, minutes } = this.state
-    return hours === '0' && minutes === '0' 
-  }
+  // isButtonDisabled () {
+  //   const { hours, minutes } = this.state
+  //   return hours === '0' && minutes === '0' 
+  // }
 
   showDisplayTime () {
     return `${padStart(this.state.hours, 2, '0')} : ${padStart(this.state.minutes, 2, '0')}`
