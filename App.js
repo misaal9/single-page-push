@@ -21,7 +21,14 @@ const CONST = {
     TIMER_RUNNING_MSG: 'Timer is running',
     TIMER_STOPPED_MSG: 'Timer is not running right now',
     APP_TITLE: 'Countdown Timer App',
-    ENTER_VALID_TIME_MSG: 'Enter a valid time'
+    ENTER_VALID_TIME_MSG: 'Enter a valid time',
+    SET_NEW_TIME: 'Click to set new time'
+  },
+  COLORS: {
+    BLUE: '#20094E',
+    YELLOW: '#FFD000',
+    RED: '#EA5A67',
+    WHITE: '#ffffff'
   }
 }
 
@@ -45,9 +52,8 @@ export default class App extends React.Component {
 
   async componentDidMount () {
     await Font.loadAsync({
-      'roboto-thin': require('./assets/fonts/Roboto-Thin.ttf'),
-      'roboto-light': require('./assets/fonts/Roboto-Light.ttf'),
-      'roboto-medium': require('./assets/fonts/Roboto-Medium.ttf')
+      'roboto-medium': require('./assets/fonts/Roboto-Medium.ttf'),
+      'permanent-marker': require('./assets/fonts/Permanent-Marker.ttf')
     })
     this.setState({
       fontLoaded: true
@@ -155,6 +161,7 @@ export default class App extends React.Component {
       <Row style={{ height: 450 }}>
         <Col style={{ justifyContent: 'center' }}>
           <Picker
+            itemStyle={{ textAlign: 'right', color: '#fff', fontSize: 40 }}
             selectedValue={this.state.hours}
             onValueChange={(itemValue, itemIndex) => this.setState({hours: itemValue})}>
             <Picker.Item label="0" value="0" />
@@ -173,15 +180,16 @@ export default class App extends React.Component {
           </Picker>
         </Col>
         <Col style={{ flex: 1, justifyContent: 'center', flexDirection: 'row', alignItems: 'center' }}>
-          <Text style={{ fontSize: 20 }}> : </Text>
+          <Text style={{ color: '#fff', fontSize: 40 }}> : </Text>
         </Col>
         <Col style={{ justifyContent: 'center' }}>
           <Picker
+            itemStyle={{ textAlign: 'left', color: '#fff', fontSize: 40 }}
             selectedValue={this.state.minutes}
             onValueChange={(itemValue, itemIndex) => this.setState({minutes: itemValue})}>
             <Picker.Item label="00" value="0" />
-            <Picker.Item label="1" value="1" />
-            <Picker.Item label="2" value="2" />
+            <Picker.Item label="01" value="1" />
+            <Picker.Item label="02" value="2" />
             <Picker.Item label="10" value="10" />
             <Picker.Item label="15" value="15" />
             <Picker.Item label="20" value="20" />
@@ -232,16 +240,11 @@ export default class App extends React.Component {
   renderStartStopButton () {
     return (
       <View style={{ flexDirection: 'column', alignItems: 'center' }}>
-        <Button 
-          full block
-          success={!this.state.isTimerRunning}
-          danger={this.state.isTimerRunning}
-          disabled={this.isButtonDisabled()}
-          style={{ marginBottom: 20 }}
-          onPress={this.toggleStartStopTimer.bind(this)}
-          >
-          <Text style={{ fontFamily: 'roboto-medium' }}>{ this.state.buttonLabel }</Text>
-        </Button>
+        <Text 
+          style={{ fontFamily: 'permanent-marker', fontSize: 80, letterSpacing: 5, color: CONST.COLORS.YELLOW }}
+          onPress={() => {this.toggleStartStopTimer()}} >
+            { this.state.buttonLabel }
+          </Text>
       </View>
     )
   }
@@ -271,12 +274,12 @@ export default class App extends React.Component {
       <Row style={{ height: 450 }}>
         <Col style={{ justifyContent: 'center' }}>
             <Text 
-              style={{ textAlign: 'center', color: '#333', fontFamily: 'roboto-medium', fontSize: 100 }}
+              style={{ textAlign: 'center', color: '#ffffff', fontFamily: 'roboto-medium', fontSize: 100 }}
               onPress={() => this.toggleTimePicker()}
             >
               { this.showDisplayTime() }
             </Text>
-            <Text style={styles.endTimeInfoLabel}> Click to set new time! </Text>
+            <Text style={styles.endTimeInfoLabel}> { CONST.LABEL.SET_NEW_TIME } </Text>
         </Col>
       </Row>
     )
@@ -294,7 +297,7 @@ export default class App extends React.Component {
     }
 
     return (
-      <Container style={{ backgroundColor: '#ffffff', flexDirection: 'column' }}>
+      <Container style={{ backgroundColor: CONST.COLORS.BLUE, flexDirection: 'column' }}>
         <Content contentContainerStyle={{ justifyContent: 'space-around', padding: 20 }}>
           { this.renderPickerOrTime() }
           { this.renderStartStopButton() }
@@ -307,12 +310,18 @@ export default class App extends React.Component {
 const styles = StyleSheet.create({
   hourMinutesLabel: {
     fontSize: 100,
+    color: CONST.COLORS.WHITE,
     fontFamily: 'roboto-medium'
   },
   endTimeInfoLabel: {
-    fontSize: 20,
-    color: '#ccc',
+    fontSize: 15,
+    fontFamily: 'roboto-medium',
+    color: CONST.COLORS.RED,
     textAlign: 'center',
     marginTop: 20
+  },
+  pickerItemStyle: {
+    color: CONST.COLORS.WHITE,
+    fontSize: 40
   }
 });

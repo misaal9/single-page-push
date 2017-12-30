@@ -13,7 +13,7 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#195ba2",
+      "backgroundColor": "#20094E",
       "hideExponentText": true
     },
     "notification": {
