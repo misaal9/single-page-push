@@ -16,14 +16,11 @@ const CONST = {
   LABEL: {
     START: 'Start',
     STOP: 'Stop',
-    DEFAULT_NOTIF_MESSAGE: 'The countdown timer you had set is complete!',
+    DEFAULT_NOTIF_MESSAGE: 'Your time(r) is up! ;)',
     DEFAULT_HOURS: '4',
-    DEFAULT_MINUTES: '00',
-    TIMER_RUNNING_MSG: 'Timer is running',
-    TIMER_STOPPED_MSG: 'Timer is not running right now',
-    APP_TITLE: 'Countdown Timer App',
-    ENTER_VALID_TIME_MSG: 'Enter a valid time',
-    SET_NEW_TIME: 'Click to set new time'
+    DEFAULT_MINUTES: '30',
+    APP_TITLE: 'Timer',
+    SET_NEW_TIME: 'Click & set time in HH:MM'
   },
   COLORS: {
     BLUE: '#20094E',
@@ -127,23 +124,6 @@ export default class App extends React.Component {
 
   getNumeric (text) {
     return onlyNumeric = text.replace(/\D/g,'')
-  }
-
-  handleChangeHours (text) {
-    this.setState({
-      hours: this.getNumeric(text)
-    })
-  }
-
-  handleChangeMinutes (text) {
-    this.setState({
-      minutes: this.getNumeric(text)
-    })
-  }
-
-  isButtonDisabled () {
-    const { hours, minutes } = this.state
-    return hours === '0' && minutes === '0' 
   }
 
   showDisplayTime () {
