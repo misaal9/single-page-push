@@ -2,7 +2,7 @@ import React from 'react'
 import { StyleSheet, View, Picker, TimePickerAndroid, Platform } from 'react-native'
 import { Grid, Col, Row } from 'react-native-easy-grid'
 import { Container, Body, Title, Header, Content, Button, Text, Item, Input } from 'native-base'
-import { Notifications } from 'expo'
+import { Notifications, SecureStore } from 'expo'
 import { Font } from 'expo'
 import moment from 'moment'
 import preciseDiff from './lib/preciseDiff'
@@ -53,8 +53,17 @@ export default class App extends React.Component {
       'roboto-medium': require('./assets/fonts/Roboto-Medium.ttf'),
       'permanent-marker': require('./assets/fonts/Permanent-Marker.ttf')
     })
+
+    const isTimerRunning = await SecureStore.getItemAsync('isTimerRunning')
+
+    if (isTimerRunning) {
+      const endTimeSavedOnDevice = await SecureStore.getItemAsync('endTime')
+      this.startTimer(true, endTimeSavedOnDevice)
+    }
+
     this.setState({
-      fontLoaded: true
+      fontLoaded: true,
+      isTimerRunning: isTimerRunning ? true : false
     })
   }
 
@@ -62,19 +71,29 @@ export default class App extends React.Component {
     clearInterval(startCountDownInterval)
   }
 
-  startTimer () {
+  async startTimer (isTimerRunning=false, endTimeSavedOnDevice=null) {
     const that = this
     const delay = 1000 * 60
-    const { hours, minutes } = this.state
+    let { hours, minutes } = this.state
     const startTime = moment()
-    const endTime = moment(startTime).add(parseInt(hours, 10), 'h').add(parseInt(minutes, 10), 'm')
+    let endTime = moment(startTime).add(parseInt(hours, 10), 'h').add(parseInt(minutes, 10), 'm')
     let diffinTime // remaining duration
+
+    if (isTimerRunning) {
+      endTime = moment(endTimeSavedOnDevice)
+    }
+
+    // save to local device
+    await SecureStore.setItemAsync('hoursSetByUser', hours)
+    await SecureStore.setItemAsync('minutesSetByUser', minutes)
+    await SecureStore.setItemAsync('endTime', endTime.format())
+    await SecureStore.setItemAsync('isTimerRunning', 'true')
 
     this.setState({
       isTimerRunning: true,
       buttonLabel: CONST.LABEL.STOP,
-      originalHrsSetByUser: hours,
-      originalMinutesSetByUser: minutes,
+      originalHrsSetByUser: hours, // TODO: not needed?
+      originalMinutesSetByUser: minutes, // TODO: not needed?
       endTime
     })
 
@@ -101,12 +120,16 @@ export default class App extends React.Component {
     }, delay)
   }
 
-  stopTimer () {
-    const { originalHrsSetByUser, originalMinutesSetByUser } = this.state
+  async stopTimer () {
+    const hoursSetByUser = await SecureStore.getItemAsync('hoursSetByUser')
+    const minutesSetByUser = await SecureStore.getItemAsync('minutesSetByUser')
+    await SecureStore.deleteItemAsync('isTimerRunning')
+    await SecureStore.deleteItemAsync('endTime')
+
     clearInterval(startCountDownInterval)
     this.setState({
-      hours: originalHrsSetByUser,
-      minutes: originalMinutesSetByUser,
+      hours: hoursSetByUser,
+      minutes: minutesSetByUser,
       isTimerRunning: false,
       buttonLabel: CONST.LABEL.START
     })
