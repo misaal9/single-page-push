@@ -134,7 +134,7 @@ export default class App extends React.Component {
     const { hours, minutes } = this.state
     const startTime = moment()
     const endTime = moment(startTime).add(parseInt(hours, 10), 'h').add(parseInt(minutes, 10), 'm')
-    return endTime.format('h:mm A')
+    return `Ring Ring will happen at ${endTime.format('h:mm A')}`
   }
 
   renderIosPicker () {
