@@ -17,7 +17,7 @@ const CONST = {
     START: 'Start',
     STOP: 'Stop',
     DEFAULT_NOTIF_MESSAGE: 'Your time(r) is up! ;)',
-    DEFAULT_HOURS: '4',
+    DEFAULT_HOURS: '7',
     DEFAULT_MINUTES: '30',
     APP_TITLE: 'Timer',
     SET_NEW_TIME: 'Click & set time in HH:MM'
@@ -84,8 +84,8 @@ export default class App extends React.Component {
     }
 
     // save to local device
-    await SecureStore.setItemAsync('hoursSetByUser', hours)
-    await SecureStore.setItemAsync('minutesSetByUser', minutes)
+    await SecureStore.setItemAsync('hoursSetByUser', hours.toString())
+    await SecureStore.setItemAsync('minutesSetByUser', minutes.toString())
     await SecureStore.setItemAsync('endTime', endTime.format())
     await SecureStore.setItemAsync('isTimerRunning', 'true')
 
