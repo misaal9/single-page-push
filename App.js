@@ -269,7 +269,7 @@ export default class App extends React.Component {
       return (
         <Container>
           <Content contentContainerStyle={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-            <View><Text>Loading...</Text></View>
+            <View><Text></Text></View>
           </Content>
         </Container>
       )
