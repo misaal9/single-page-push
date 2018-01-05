@@ -12,6 +12,8 @@ preciseDiff(moment)
 
 console.disableYellowBox = true
 
+const DEBUG_STATE = false
+
 const CONST = {
   LABEL: {
     START: 'Start',
@@ -81,6 +83,11 @@ export default class App extends React.Component {
 
     if (isTimerRunning) {
       endTime = moment(endTimeSavedOnDevice)
+      diffinTime = moment.preciseDiff(moment(), moment(endTime), true)
+    }
+
+    if (moment().isSameOrAfter(endTime)) {
+      return this.stopTimer()
     }
 
     // save to local device
@@ -89,11 +96,15 @@ export default class App extends React.Component {
     await SecureStore.setItemAsync('endTime', endTime.format())
     await SecureStore.setItemAsync('isTimerRunning', 'true')
 
+    diffinTime = moment.preciseDiff(moment(), moment(endTime), true)
+
     this.setState({
       isTimerRunning: true,
       buttonLabel: CONST.LABEL.STOP,
-      originalHrsSetByUser: hours, // TODO: not needed?
-      originalMinutesSetByUser: minutes, // TODO: not needed?
+      originalHrsSetByUser: hours,
+      originalMinutesSetByUser: minutes,
+      hours: diffinTime.hours,
+      minutes: diffinTime.minutes,
       endTime
     })
 
@@ -109,12 +120,12 @@ export default class App extends React.Component {
       endTimeMoment = moment(endTime)
 
       if (currentTimeMoment.isSameOrAfter(endTimeMoment)) {
-        console.log('stop timer since time is up')
         return this.stopTimer()
       }
 
+      // that.setDisplayTime()
       diffinTime = moment.preciseDiff(moment(), moment(endTime), true)
-      that.setState({
+      this.setState({
         hours: diffinTime.hours, minutes: diffinTime.minutes
       })
     }, delay)
@@ -132,7 +143,7 @@ export default class App extends React.Component {
       minutes: minutesSetByUser,
       isTimerRunning: false,
       buttonLabel: CONST.LABEL.START
-    })
+    }) 
 
     return Notifications.cancelAllScheduledNotificationsAsync()
   }
@@ -150,14 +161,20 @@ export default class App extends React.Component {
   }
 
   showDisplayTime () {
-    return `${padStart(this.state.hours, 2, '0')} : ${padStart(this.state.minutes, 2, '0')}`
+    const { hours, minutes } = this.state
+
+    if (hours === 0 && minutes === 0) {
+      return `<1m`
+    }
+
+    return `${padStart(hours, 2, '0')} : ${padStart(minutes, 2, '0')}`
   }
 
   showEndTimeInfoLabel () {
     const { hours, minutes } = this.state
     const startTime = moment()
     const endTime = moment(startTime).add(parseInt(hours, 10), 'h').add(parseInt(minutes, 10), 'm')
-    return `Ring Ring will happen at ${endTime.format('h:mm A')}`
+    return `Your time's up at ${endTime.format('h:mm A')}`
   }
 
   renderIosPicker () {
@@ -192,6 +209,7 @@ export default class App extends React.Component {
             selectedValue={this.state.minutes}
             onValueChange={(itemValue, itemIndex) => this.setState({minutes: itemValue})}>
             <Picker.Item label="00" value="0" />
+            {/* <Picker.Item label="01" value="1" /> */}
             <Picker.Item label="10" value="10" />
             <Picker.Item label="15" value="15" />
             <Picker.Item label="20" value="20" />
@@ -287,6 +305,20 @@ export default class App extends React.Component {
     )
   }
 
+  renderDebugData () {
+    if (DEBUG_STATE) {
+      return (
+        <View>
+          <Text>endTime? { moment(this.state.endTime).format('h:mm') }</Text>
+          <Text>currentHrsMinutes? { this.state.hours }:{ this.state.minutes }</Text>
+          <Text>isTimerRunning? { this.state.isTimerRunning.toString() }</Text>
+          <Text>originalTimeSetByUser? { this.state.originalHrsSetByUser }:{ this.state.originalMinutesSetByUser }</Text>
+          <Text>displayTime? { this.state.displayTime }</Text>  
+        </View>
+      )
+    }
+  }
+
   render() {
     if (!this.state.fontLoaded) {
       return (
@@ -303,6 +335,7 @@ export default class App extends React.Component {
         <Content contentContainerStyle={{ justifyContent: 'space-around', padding: 20 }}>
           { this.renderPickerOrTime() }
           { this.renderStartStopButton() }
+          { this.renderDebugData() }
         </Content>
       </Container>
     );
