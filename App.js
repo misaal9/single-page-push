@@ -22,7 +22,7 @@ const CONST = {
     DEFAULT_HOURS: '7',
     DEFAULT_MINUTES: '30',
     APP_TITLE: 'Timer',
-    SET_NEW_TIME: 'Click & set time in HH:MM'
+    SET_NEW_TIME: 'Click to set time in HH:MM format'
   },
   COLORS: {
     BLUE: '#20094E',
@@ -52,8 +52,9 @@ export default class App extends React.Component {
 
   async componentDidMount () {
     await Font.loadAsync({
-      'roboto-medium': require('./assets/fonts/Roboto-Medium.ttf'),
-      'permanent-marker': require('./assets/fonts/Permanent-Marker.ttf')
+      'roboto-thin': require('./assets/fonts/Roboto-Thin.ttf'),
+      'roboto-light': require('./assets/fonts/Roboto-Light.ttf'),
+      'roboto-medium': require('./assets/fonts/Roboto-Medium.ttf')
     })
 
     const isTimerRunning = await SecureStore.getItemAsync('isTimerRunning')
@@ -98,6 +99,15 @@ export default class App extends React.Component {
 
     diffinTime = moment.preciseDiff(moment(), moment(endTime), true)
 
+    if (!isTimerRunning) {
+      Notifications.scheduleLocalNotificationAsync({
+        title: CONST.LABEL.APP_TITLE,
+        body: CONST.LABEL.DEFAULT_NOTIF_MESSAGE
+      }, {
+        time: new Date(endTime)
+      })
+    }
+
     this.setState({
       isTimerRunning: true,
       buttonLabel: CONST.LABEL.STOP,
@@ -106,13 +116,6 @@ export default class App extends React.Component {
       hours: diffinTime.hours,
       minutes: diffinTime.minutes,
       endTime
-    })
-
-    Notifications.scheduleLocalNotificationAsync({
-      title: CONST.LABEL.APP_TITLE,
-      body: CONST.LABEL.DEFAULT_NOTIF_MESSAGE
-    }, {
-      time: new Date(endTime)
     })
 
     startCountDownInterval = setInterval( () => {
@@ -172,9 +175,10 @@ export default class App extends React.Component {
 
   showEndTimeInfoLabel () {
     const { hours, minutes } = this.state
+    const hoursLabel = hours > 0 ? `${hours}h` : ''
     const startTime = moment()
     const endTime = moment(startTime).add(parseInt(hours, 10), 'h').add(parseInt(minutes, 10), 'm')
-    return `Your time's up at ${endTime.format('h:mm A')}`
+    return `${hoursLabel} ${this.state.minutes}m to go for ${endTime.format('h:mm A')}`
   }
 
   renderIosPicker () {
@@ -182,7 +186,7 @@ export default class App extends React.Component {
       <Row style={{ height: 450 }}>
         <Col style={{ justifyContent: 'center' }}>
           <Picker
-            itemStyle={{ textAlign: 'right', color: '#fff', fontSize: 40 }}
+            itemStyle={{ textAlign: 'right', color: '#fff', fontSize: 40, fontFamily: 'roboto-light' }}
             selectedValue={this.state.hours}
             onValueChange={(itemValue, itemIndex) => this.setState({hours: itemValue})}>
             <Picker.Item label="00" value="0" />
@@ -205,11 +209,11 @@ export default class App extends React.Component {
         </Col>
         <Col style={{ justifyContent: 'center' }}>
           <Picker
-            itemStyle={{ textAlign: 'left', color: '#fff', fontSize: 40 }}
+            itemStyle={{ textAlign: 'left', color: '#fff', fontSize: 40, fontFamily: 'roboto-light' }}
             selectedValue={this.state.minutes}
             onValueChange={(itemValue, itemIndex) => this.setState({minutes: itemValue})}>
             <Picker.Item label="00" value="0" />
-            {/* <Picker.Item label="01" value="1" /> */}
+            <Picker.Item label="01" value="1" />
             <Picker.Item label="10" value="10" />
             <Picker.Item label="15" value="15" />
             <Picker.Item label="20" value="20" />
@@ -259,12 +263,15 @@ export default class App extends React.Component {
 
   renderStartStopButton () {
     return (
-      <View style={{ flexDirection: 'column', alignItems: 'center' }}>
-        <Text 
-          style={{ fontFamily: 'permanent-marker', fontSize: 80, letterSpacing: 5, color: CONST.COLORS.YELLOW }}
-          onPress={() => {this.toggleStartStopTimer()}} >
-            { this.state.buttonLabel }
+      <View style={{ flexDirection: 'column', alignItems: 'center', alignSelf: 'center' }}>
+        <Button 
+          style={{ backgroundColor: CONST.COLORS.YELLOW, padding: 40 }}
+          onPress={() => {this.toggleStartStopTimer()}}>
+          <Text 
+            style={{ fontFamily: 'roboto-medium', fontSize: 20, color: CONST.COLORS.BLUE }}>
+              { this.state.buttonLabel.toUpperCase() }
           </Text>
+        </Button>
       </View>
     )
   }
@@ -346,11 +353,11 @@ const styles = StyleSheet.create({
   hourMinutesLabel: {
     fontSize: 100,
     color: CONST.COLORS.WHITE,
-    fontFamily: 'roboto-medium'
+    fontFamily: 'roboto-thin'
   },
   endTimeInfoLabel: {
     fontSize: 15,
-    fontFamily: 'roboto-medium',
+    fontFamily: 'roboto-light',
     color: CONST.COLORS.RED,
     textAlign: 'center',
     marginTop: 20
